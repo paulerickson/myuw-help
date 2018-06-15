@@ -1,0 +1,14 @@
+{
+  "name": "@myuw-web-components/myuw-help-and-feedback",
+  "version": "1.0.0",
+  "description": "",
+  "main": "myuw-help.html",
+  "scripts": {
+    "start": "superstatic --port 8080 --host 127.0.0.1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "superstatic": "^5.0.1"
+  }
+}

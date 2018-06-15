@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<!--
+    MyUW Help and Feedback web component HTML template
+-->
+<template id='myuw-help-template'>
+    <style>
+        :host {
+            display: block;
+            font-style: inherit;
+            font-variant: inherit;
+            font-family: inherit;
+        }
+
+        :host([hidden]) {
+            display: none;
+        }
+
+        :host(:hover) {
+            background-color: rgba(158,158,158,0.2);
+        }
+
+        :host(:focus) {
+            outline: none;
+        }
+
+        #myuw-help__button {
+            color: var(--muyw-app-bar-color, #fff);
+            min-width: 48px;
+            margin: 0;
+            display: inline-block;
+            position: relative;
+            cursor: pointer;
+            min-height: 36px;
+            line-height: 36px;
+            text-align: center;
+            border-radius: 3px;
+            box-sizing: border-box;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            border: 0;
+            padding: 0 6px;
+            background: transparent;
+            white-space: nowrap;
+            text-transform: uppercase;
+            font-weight: 500;
+            font-size: 14px;
+            text-decoration: none;
+            overflow: hidden;
+            -webkit-transition: box-shadow .4s cubic-bezier(.25,.8,.25,1),background-color .4s cubic-bezier(.25,.8,.25,1);
+            transition: box-shadow .4s cubic-bezier(.25,.8,.25,1),background-color .4s cubic-bezier(.25,.8,.25,1);
+        }
+    </style>
+    <button id='myuw-help__button'>
+        <svg id='myuw-help__icon' xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <path d="M0 0h24v24H0z" fill="none"/>
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/>
+        </svg>
+    </button>
+</template>
+<!--
+    MyUW App Bar web component javascript class defition
+-->
+<script>
+    // Custom element class definition
+    class MyuwHelp extends HTMLElement {
+        
+        constructor() {
+            super();
+        
+            // Create a shadowroot for this element
+            this.attachShadow({mode: 'open'});
+
+            // Append the custom HTML to the shadowroot
+            this.shadowRoot.appendChild(MyuwHelp.template.content.cloneNode(true));
+        }
+
+        static get observedAttributes() {
+            return [
+                'icon-color'
+            ];
+        }
+
+        showDialog() {
+            console.log('show the dialog');
+            document.getElementById('myuw-help__click-catcher').style.opacity = '1';
+            document.getElementById('myuw-help__click-catcher').style.height = '100%';
+        }
+
+        closeDialog() {
+            console.log('close the dialog');
+            document.getElementById('myuw-help__click-catcher').style.opacity = '0';
+            document.getElementById('myuw-help__click-catcher').style.height = '0';
+        }
+
+        /**
+        *   Web component lifecycle hook to update changed properties
+        */
+        attributeChangedCallback(name, oldValue, newValue) {
+            // Update the attribute internally
+            this[name] = newValue;
+            // Update the component
+            this.updateComponent();
+        }
+
+        /**
+        *   When component is first attached to the DOM,
+        *   get its defined attributes and listen for
+        *   scrolling
+        */
+        connectedCallback() {
+            // Get all attributes
+            this['icon-color'] = this.getAttribute('icon-color');
+
+            var myuwHelpClickCatcher = document.createElement('div');
+            myuwHelpClickCatcher.setAttribute('id', 'myuw-help__click-catcher');
+            myuwHelpClickCatcher.setAttribute('style', `
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 0;
+                opacity: 0;
+                background: rgba(0,0,0,0.3);
+                transition: opacity 0.3s cubic-bezier(.25,.8,.25,1);
+            `);
+            myuwHelpClickCatcher.addEventListener('click', this.closeDialog);
+            document.body.appendChild(myuwHelpClickCatcher);
+
+            // Listen for click events
+            this.shadowRoot.getElementById('myuw-help__button').addEventListener('click', this.showDialog);
+        }  
+
+        /**
+        *   Clean up event listeners if element is removed from the DOM
+        */
+        disconnectedCallback() {
+            document.getElementById('myuw-help__click-catcher').remove();
+        }
+
+        /**
+        *   Update the component state
+        */
+        updateComponent() {
+            // Set the icon fill color
+            this.shadowRoot.getElementById('myuw-help__icon').setAttribute('fill', this['icon-color'])
+        }
+    }
+
+    MyuwHelp.template = (document._currentScript || document.currentScript).ownerDocument.getElementById('myuw-help-template');
+
+    window.customElements.define('myuw-help', MyuwHelp);
+</script>

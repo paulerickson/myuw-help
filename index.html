@@ -1,0 +1,29 @@
+<html>
+    <head>
+        <style>
+            body {
+                padding: 0;
+                margin: 0;
+            }
+        </style>
+        <link rel="import" href="./myuw-help.html">
+        <link rel="import" href="https://unpkg.com/@myuw-web-components/myuw-app-bar/myuw-app-bar.html">
+        <script src="https://unpkg.com/@myuw-web-components/myuw-app-styles/myuw-app-styles.js"></script>
+    </head>
+    <body>
+        <!-- Styles for demo purposes only -->
+        <style>
+            .demo__container {
+                height: 800px;
+            }
+        </style>
+        <myuw-app-bar 
+            theme-name="MyUW" 
+            app-name="Help and Feedback">
+            <myuw-help slot="myuw-help" icon-color="#fff"></myuw-help>
+        </myuw-app-bar>
+        <div class="demo__container">
+            
+        </div>
+    </body>
+</html>
