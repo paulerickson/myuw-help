@@ -38,14 +38,18 @@
         <script src="https://cdn.rawgit.com/webcomponents/webcomponentsjs/v1/webcomponents-loader.js"></script>
         <!-- MyUW web components -->
         <script src="https://cdn.rawgit.com/myuw-web-components/myuw-app-styles/6f62858b/myuw-app-styles.js"></script>
-        <link rel="import" href="https://cdn.rawgit.com/myuw-web-components/myuw-app-bar/86b5c15b/myuw-app-bar.html">
+
+        <script type="module" src="https://unpkg.com/@myuw-web-components/myuw-app-bar?module"></script>
+        <script nomodule src="https://unpkg.com/@myuw-web-components/myuw-app-bar"></script>
+
         <!-- Help and feedback component -->
-        <link rel="import" href="./myuw-help.html">
+        <script type="module" src="./dist/myuw-help.mjs"></script>
+        <script nomodule src="./dist/myuw-help.js"></script>
     </head>
 
     <body>
-        <myuw-app-bar 
-            theme-name="MyUW" 
+        <myuw-app-bar
+            theme-name="MyUW"
             app-name="Help and Feedback">
         </myuw-app-bar>
         <div class="demo__container">

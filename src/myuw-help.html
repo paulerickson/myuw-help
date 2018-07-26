@@ -1,0 +1,209 @@
+
+<style>
+    :host {
+        display: block;
+        font-style: inherit;
+        font-variant: inherit;
+        font-family: inherit;
+    }
+
+    :host([hidden]) {
+        display: none;
+    }
+
+    :host([show-default-content]) #myuw-help__default-content {
+        display: block;
+    }
+
+    :host([open]) #myuw-help__dialog {
+        opacity: 1;
+        right: 0;
+        top: 20%;
+        transform: translate(-50%,20%) scale(1);
+    }
+
+    :host([open]) #myuw-help__shadow {
+        opacity: 1;
+        height: 100%;
+    }
+
+    #myuw-help__dialog {
+        max-height: 80%;
+        max-width: 80%;
+        min-width: 300px;
+        height: auto;
+        -webkit-box-shadow: 0 -2px 25px 0 rgba(0, 0, 0, 0.15), 0 13px 25px 0 rgba(0, 0, 0, 0.3);
+        box-shadow: 0 -2px 25px 0 rgba(0, 0, 0, 0.15), 0 13px 25px 0 rgba(0, 0, 0, 0.3);
+        background-color: #FFFFFF;
+        padding: 22px 24px 12px;
+        margin-top: 0;
+        margin-bottom: 0;
+        margin-left: auto;
+        margin-right: auto;
+        border-radius: 5px;
+        font-family: 'Roboto', Arial, sans-serif; /* TODO: use styles variables */
+        position: absolute;
+        opacity: 0;
+        top: 0;
+        right: 0;
+        -webkit-transition: all .4s cubic-bezier(.25,.8,.25,1);
+        transition: all .4s cubic-bezier(.25,.8,.25,1);
+        z-index: 101;
+    }
+
+    #myuw-help__heading {
+        display: flex;
+        align-content: center;
+        justify-content: space-between;
+    }
+
+    #myuw-help__title {
+        color: rgba(0,0,0,0.8);
+        font-size: 20px;
+        font-weight: 500;
+        line-height: 24px;
+        letter-spacing: 0.03px;
+    }
+
+    #myuw-help__content {
+        font-weight: 400;
+        font-size: 16px;
+        color: rgba(0,0,0,.5);
+        line-height: 24px;
+        text-align: left;
+        letter-spacing: 0.03px;
+        padding: 8px 0 16px;
+    }
+
+    #myuw-help__default-content {
+        display: none;
+    }
+
+    #myuw-help__default-content ul {
+        margin: 0;
+        padding: 0;
+        list-style-type: none;
+    }
+    #myuw-help__default-content ul li {
+        transition: background 0.4s cubic-bezier(.25,.8,.25,1);
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        min-height: 38px;
+        height: auto;
+        padding: 0 16px 0 6px;
+    }
+    #myuw-help__default-content ul li:hover {
+        background: rgba(158,158,158,0.2);
+    }
+    #myuw-help__default-content a {
+        text-decoration: none;
+        color: #0479a8; /* TODO: use styles variables */
+        min-height: 38px;
+        line-height: 38px;
+        flex: auto;
+        display: flex;
+        align-items: center;
+    }
+
+    #myuw-help__default-content .material-icons {
+        width: 24px;
+        min-height: 24px;
+        min-width: 24px;
+        margin-right: 12px;
+        color: #434343;
+    }
+
+    #myuw-help__shadow {
+        position: fixed;
+        top: 64px;
+        left: 0;
+        width: 100%;
+        height: 0;
+        opacity: 0;
+        background: rgba(0,0,0,0.3);
+        transition: opacity 0.3s cubic-bezier(.25,.8,.25,1);
+        z-index: 100;
+    }
+
+    #myuw-help__close-button {
+        min-width: 48px;
+        margin: 0;
+        display: inline-block;
+        position: relative;
+        cursor: pointer;
+        min-height: 36px;
+        line-height: 36px;
+        text-align: center;
+        border-radius: 3px;
+        box-sizing: border-box;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        border: 0;
+        padding: 0 6px;
+        background: transparent;
+        white-space: nowrap;
+        text-transform: uppercase;
+        font-weight: 500;
+        font-size: 14px;
+        text-decoration: none;
+        overflow: hidden;
+        -webkit-transition: box-shadow .4s cubic-bezier(.25,.8,.25,1),background-color .4s cubic-bezier(.25,.8,.25,1);
+        transition: box-shadow .4s cubic-bezier(.25,.8,.25,1),background-color .4s cubic-bezier(.25,.8,.25,1);
+        border-radius: 50%;
+    }
+    #myuw-help__close-button:hover {
+        background-color: rgba(158,158,158,0.2);
+    }
+    #myuw-help__close-button:focus {
+        outline: none;
+    }
+
+    @media all and (min-width: 481px) and (max-width: 840px) {
+        #myuw-help__dialog {
+            width: 400px;
+        }
+    }
+
+    @media all and (min-width: 841px) {
+        #myuw-help__dialog {
+            width: 600px;
+        }
+    }
+</style>
+<div id="myuw-help__dialog">
+    <div id="myuw-help__heading">
+        <h1 id="myuw-help__title"></h1>
+        <button id="myuw-help__close-button" aria-label="close dialog">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                <path d="M0 0h24v24H0z" fill="none"/>
+            </svg>
+        </button>
+    </div>
+    <div id="myuw-help__content">
+        <slot name="myuw-help-content"></slot>
+        <div id="myuw-help__default-content">
+            <ul>
+                <li>
+                    <a href="tel:608-264-4357">Call the help desk</a>
+                </li>
+                <li>
+                    <a href="mailto:help@doit.wisc.edu">Email the help desk</a>
+                </li>
+                <li>
+                    <a href="https://it.wisc.edu">Get help another way</a>
+                </li>
+                <li>
+                    <a href="https://outages.doit.wisc.edu/">Check the Outages page</a>
+                </li>
+                <li>
+                    <a href="https://kb.wisc.edu/">Search the KnowledgeBase</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div id="myuw-help__shadow"></div>
