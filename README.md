@@ -41,7 +41,7 @@ Use the component's HTML tag wherever you want:
         <div class="your-div-here" slot="myuw-help-content">
             Your custom content
         </div>
-    </myuw-help
+    </myuw-help>
 ```
 
 ### Configurable properties via attributes
