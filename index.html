@@ -37,10 +37,11 @@
         <!-- Web component polyfill loader -->
         <script src="https://cdn.rawgit.com/webcomponents/webcomponentsjs/v1/webcomponents-loader.js"></script>
         <!-- MyUW web components -->
-        <script src="https://cdn.rawgit.com/myuw-web-components/myuw-app-styles/6f62858b/myuw-app-styles.js"></script>
+        <script type="module" src="https://unpkg.com/@myuw-web-components/myuw-app-styles@^1?module"></script>
+        <script nomodule src="https://unpkg.com/@myuw-web-components/myuw-app-styles@^1"></script>
 
-        <script type="module" src="https://unpkg.com/@myuw-web-components/myuw-app-bar?module"></script>
-        <script nomodule src="https://unpkg.com/@myuw-web-components/myuw-app-bar"></script>
+        <script type="module" src="https://unpkg.com/@myuw-web-components/myuw-app-bar@^1?module"></script>
+        <script nomodule src="https://unpkg.com/@myuw-web-components/myuw-app-bar@^1"></script>
 
         <!-- Help and feedback component -->
         <script type="module" src="./dist/myuw-help.mjs"></script>
