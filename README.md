@@ -16,8 +16,8 @@ $ npm start
 Add the following import to your page's `<head>`:
 
 ```html
-<script type="module" src="https://unpkg.com/@myuw-web-components/myuw-help?module"></script>
-<script nomodule src="https://unpkg.com/@myuw-web-components/myuw-help"></script>
+<script type="module" src="https://unpkg.com/@myuw-web-components/myuw-help@^1?module"></script>
+<script nomodule src="https://unpkg.com/@myuw-web-components/myuw-help@^1"></script>
 ```
 
 Fire the `show-myuw-help` event on the `document.body` when you want the dialog to display (e.g. when your "help" button is clicked):
