@@ -1,0 +1,72 @@
+<html>
+    <head>
+        <style>
+            body {
+                padding: 0;
+                margin: 0;
+                background: #e2e2e2;
+            }
+            /* Styles for demo purposes only */
+            .demo__container {
+                height: 800px;
+            }
+            .demo__button-box {
+                margin: 36px 48px;
+            }
+            .demo__help-button {
+                font-size: 22px;
+                padding: 6px 12px;
+                min-width: 84px;
+                min-height: 48px;
+                border-radius: 4px;
+                border-color: transparent;
+                background: #fff;
+                color: #222;
+                box-shadow: 0 1px 3px 0 rgba(0,0,0,0.2), 0 1px 1px 0 rgba(0,0,0,0.14), 0 2px 1px -1px rgba(0,0,0,0.12);
+                transition: all 0.2s cubic-bezier(.25,.8,.25,1);
+            }
+            .demo__help-button:hover {
+                cursor: pointer;
+                box-shadow: 0 4px 10px 0 rgba(0,0,0,0.2);
+                background: rgb(241, 241, 241);
+            }
+            .demo__help-button:focus {
+                outline: none;
+            }
+        </style>
+        <!-- Web component polyfill loader -->
+        <script src="https://cdn.rawgit.com/webcomponents/webcomponentsjs/v1/webcomponents-loader.js"></script>
+        <!-- MyUW web components -->
+        <script type="module" src="https://unpkg.com/@myuw-web-components/myuw-app-styles@^1?module"></script>
+        <script nomodule src="https://unpkg.com/@myuw-web-components/myuw-app-styles@^1"></script>
+
+        <script type="module" src="https://unpkg.com/@myuw-web-components/myuw-app-bar@^1?module"></script>
+        <script nomodule src="https://unpkg.com/@myuw-web-components/myuw-app-bar@^1"></script>
+
+        <!-- Help and feedback component -->
+        <script type="module" src="./dist/myuw-help.mjs"></script>
+        <script nomodule src="./dist/myuw-help.js"></script>
+    </head>
+
+    <body>
+        <myuw-app-bar
+            theme-name="MyUW"
+            app-name="Help and Feedback">
+        </myuw-app-bar>
+        <div class="demo__container">
+            <div class="demo__button-box">
+                <button class="demo__help-button" onclick="getHelp()">Click me for help!</button>
+            </div>
+        </div>
+        <myuw-help myuw-help-title="Help is on the way!" show-default-content>
+            <p slot="myuw-help-content">Slot content</p>
+        </myuw-help>
+    </body>
+
+    <script>
+        function getHelp() {
+            var event = new Event('show-myuw-help');
+            document.body.dispatchEvent(event);
+        }
+    </script>
+</html>
