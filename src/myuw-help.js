@@ -16,7 +16,7 @@ class MyUWHelp extends HTMLElement {
       'myuw-help-title',
       'open',
       'show-default-content',
-      'show-bar-button'
+      'show-button'
     ];
   }
 
@@ -39,7 +39,7 @@ class MyUWHelp extends HTMLElement {
     this['myuw-help-title']       = this.getAttribute('myuw-help-title');
     this['open']                  = this.getAttribute('open');
     this['show-default-content']  = this.getAttribute('show-default-content');
-    this['show-bar-button']       = this.getAttribute('show-bar-button');
+    this['show-button']       = this.getAttribute('show-button');
 
     this.$button            = this.shadowRoot.getElementById('help-button');
     this.$dialog            = this.shadowRoot.getElementById('myuw-help__dialog');

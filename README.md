@@ -16,7 +16,7 @@ Include the component's markup on your page:
 ```html
     <myuw-help
         myuw-help-title="Get help"
-        show-bar-button
+        show-button
         show-default-content
         open>
         <div class="your-div-here" slot="myuw-help-content">
@@ -39,7 +39,7 @@ function showHelpDialog() {
 ### Configurable properties via attributes
 
 - **myuw-help-title**: The title to display at the top of the help dialog
-- **show-bar-button**: Include this attribute if you want the help icon button to appear the the top bar. If you want to trigger the dialog some other way, you're free to omit this attribute.
+- **show-button**: Include this attribute if you want the help icon button to appear the the top bar. If you want to trigger the dialog some other way, you're free to omit this attribute.
 - **show-default-content**: Include this attribute if you want to include the default UW-Madison-flavored help links. At this time we do not recommend showing the default content, as it is still a work in progress.
 - **open**: Only include this attribute if the dialog should be open by default
 
