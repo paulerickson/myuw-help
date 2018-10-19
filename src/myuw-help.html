@@ -7,13 +7,6 @@
       font-family: inherit;
     }
 
-    myuw-help {
-      display: flex;
-      font-style: inherit;
-      font-variant: inherit;
-      font-family: inherit;
-    }
-
     :host([hidden]) {
         display: none;
     }
@@ -31,6 +24,35 @@
     }
 
     :host([open]) #myuw-help__shadow {
+        opacity: 1;
+        height: 100%;
+    }
+
+    /* Duplicate styles to appease firefox */
+    myuw-help {
+      display: flex;
+      font-style: inherit;
+      font-variant: inherit;
+      font-family: inherit;
+    }
+
+    myuw-help[hidden] {
+        display: none;
+    }
+
+    myuw-help[show-default-content] #myuw-help__default-content {
+        display: block;
+    }
+
+    myuw-help[show-bar-button] #help-button {
+      display: flex;
+    }
+
+    myuw-help[open] #myuw-help__dialog {
+        opacity: 1;
+    }
+
+    myuw-help[open] #myuw-help__shadow {
         opacity: 1;
         height: 100%;
     }
