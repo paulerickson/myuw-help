@@ -21,6 +21,7 @@
 
     :host([open]) #myuw-help__dialog {
         opacity: 1;
+        display: block;
     }
 
     :host([open]) #myuw-help__shadow {
@@ -50,14 +51,16 @@
 
     myuw-help[open] #myuw-help__dialog {
         opacity: 1;
+        display: block;
     }
 
     myuw-help[open] #myuw-help__shadow {
         opacity: 1;
-        height: 100%;
+        /* height: 100%; */
     }
 
     #myuw-help__dialog {
+      display: none;
         max-width: 80%;
         min-width: 300px;
         height: auto;
