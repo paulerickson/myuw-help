@@ -1,5 +1,11 @@
 # myuw-help versions
 
+## 1.3.1
+
+### Fixed
+
+* Removed a typo that caused a javascript error.
+
 ## 1.3.0
 
 ### Added
