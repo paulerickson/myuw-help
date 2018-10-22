@@ -1,5 +1,11 @@
 # myuw-help versions
 
+## 1.3.0
+
+### Added
+
+* Added support for sending a custom dialog position as part of the `set-myuw-help-position` CustomEvent
+
 ## 1.2.0
 
 ### Added

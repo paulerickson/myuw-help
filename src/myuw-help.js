@@ -46,13 +46,27 @@ class MyUWHelp extends HTMLElement {
     this.$dialogTitle       = this.shadowRoot.getElementById('myuw-help__title');
     this.$backdrop          = this.shadowRoot.getElementById('myuw-help__shadow');
     this.$dialogCloseButton = this.shadowRoot.getElementById('myuw-help__close-button');
-    
-    // Listen for open events
+    this.$customPosition    = {};
+
+    // Listen for open events and set positioning
     this.$button.addEventListener('click', () => {
       this.setDialogState();
     });
+
     document.addEventListener('show-myuw-help', () => {
       this.setDialogState();
+    });
+
+    // Listen for custom positioning event
+    /**
+      * @typedef {Object} position
+      * @property {String} top A value for the CSS "top" attribute
+      * @property {String} left A value for the CSS "left" attribute
+    */
+    document.addEventListener('set-myuw-help-position', (data) => {
+      if (data.detail && data.detail.position) {
+        this.$customPosition = data.detail.position;
+      }
     });
 
     // Listen for close events
@@ -116,22 +130,28 @@ class MyUWHelp extends HTMLElement {
    * Position the dialog in the middle of the screen
    */
   setDialogPosition() {
-    // Dialog dimensions
-    var dialogWidth = this.$dialog.offsetWidth;
-    var dialogHeight = this.$dialog.offsetHeight;
+    if (this.$customPosition.left && this.$customPosition.top) {
+      this.$dialog.style.left = this.$customPosition.left;
+      this.$dialog.style.top = this.$customPosition.top;
+      this.$dialog.style.right = 'auto';
+    } else {
+      // Dialog dimensions
+      var dialogWidth = this.$dialog.offsetWidth;
+      var dialogHeight = this.$dialog.offsetHeight;
 
-    // Screen dimensions
-    var cssWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-    var cssHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+      // Screen dimensions
+      var cssWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+      var cssHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
 
-    // Dialog position
-    var topPosition = ((cssHeight - dialogHeight) / 3);
-    var leftPosition = ((cssWidth - dialogWidth) / 2);;
+      // Dialog position
+      var topPosition = ((cssHeight - dialogHeight) / 3);
+      var leftPosition = ((cssWidth - dialogWidth) / 2);;
 
-    // Set positioning
-    this.$dialog.style.left = leftPosition;
-    this.$dialog.style.right = 'auto';
-    this.$dialog.style.top = topPosition;
+      // Set positioning
+      this.$dialog.style.left = leftPosition + 'px';
+      this.$dialog.style.top = topPosition + 'px';
+      this.$dialog.style.right = 'auto';
+    }
   }
 }
 
@@ -142,3 +162,25 @@ MyUWHelp.template = (function template(src) {
 })(tpl);
 
 window.customElements.define('myuw-help', MyUWHelp);
+
+
+/**
+ * Polyfill for supporting the CustomEvent constructor in IE9+
+ * From: https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/CustomEvent#Polyfill
+ */
+(function () {
+  if (typeof window.CustomEvent === 'function') {
+    return false;
+  }
+  
+  function CustomEvent (event, params) {
+    params = params || { bubbles: false, cancelable: false, detail: undefined };
+    var evt = document.createEvent( 'CustomEvent' );
+    evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
+    return evt;
+  }
+  CustomEvent.prototype = window.Event.prototype;
+  window.CustomEvent = CustomEvent;
+})();
+
+window.customElements.define('myuw-profile', MyUWProfile);

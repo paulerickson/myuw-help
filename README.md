@@ -25,7 +25,9 @@ Include the component's markup on your page:
     </myuw-help>
 ```
 
-Fire the `show-myuw-help` event on the `document` when you want the dialog to display (e.g. when your "help" button is clicked):
+### Trigger dialog manually 
+
+If you aren't using the top bar button (via the `show-button` attribute), fire the `show-myuw-help` event on the `document` when you want the dialog to display (e.g. when your "help" button is clicked):
 
 ```js
 function showHelpDialog() {
@@ -34,7 +36,25 @@ function showHelpDialog() {
 }
 ```
 
-*Note: It is important that you use that exact event name and dispatch the event from the document scope. The component listens for the* `show-myuw-help` *event.*
+### Set up custom positioning
+
+If you want to control the exact positioning of the dialog, you can dispatch a `CustomEvent` called `set-myuw-help-position` with position data like so:
+
+```js
+function showHelpDialog() {
+    var event = new CustomEvent('show-myuw-help', {
+      detail: { // required by CustomEvent spec
+        position: { // "position" required by myuw-help component
+          top: '100px', // "top" required by myuw-help component
+          left: '100px', // "left" required by myuw-help component
+        }
+      }
+    });
+    document.dispatchEvent(event);
+}
+```
+
+*Note: It is important that you use that exact event name and dispatch the event from the document scope. The component listens for the* `show-myuw-help`  *and* `set-myuw-help-position` *events.*
 
 ### Configurable properties via attributes
 

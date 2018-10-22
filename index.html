@@ -65,14 +65,27 @@
         <div class="demo__container">
             <div class="demo__button-box">
                 <button class="demo__help-button" onclick="getHelp()">You can also click me for help!</button>
+                <button class="demo__help-button" onclick="setCustomPosition()">Use a custom position</button>
             </div>
         </div>
     </body>
 
     <script>
-        function getHelp() {
-            var event = new Event('show-myuw-help');
-            document.dispatchEvent(event);
-        }
+      function setCustomPosition () {
+        var event = new CustomEvent('set-myuw-help-position', {
+          detail: {
+            position: {
+              left: '100px',
+              top: '100px'
+            }
+          }
+        });
+        document.dispatchEvent(event);
+      }
+
+      function getHelp() {
+        var event = new Event('show-myuw-help');
+        document.dispatchEvent(event);
+      }
     </script>
 </html>
