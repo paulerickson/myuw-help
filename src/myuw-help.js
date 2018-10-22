@@ -161,9 +161,6 @@ MyUWHelp.template = (function template(src) {
   return template;
 })(tpl);
 
-window.customElements.define('myuw-help', MyUWHelp);
-
-
 /**
  * Polyfill for supporting the CustomEvent constructor in IE9+
  * From: https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/CustomEvent#Polyfill
@@ -183,4 +180,4 @@ window.customElements.define('myuw-help', MyUWHelp);
   window.CustomEvent = CustomEvent;
 })();
 
-window.customElements.define('myuw-profile', MyUWProfile);
+window.customElements.define('myuw-help', MyUWHelp);
