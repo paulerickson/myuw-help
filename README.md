@@ -25,7 +25,7 @@ Include the component's markup on your page:
     </myuw-help>
 ```
 
-### Trigger dialog manually 
+### Trigger dialog manually
 
 If you aren't using the top bar button (via the `show-button` attribute), fire the `show-myuw-help` event on the `document` when you want the dialog to display (e.g. when your "help" button is clicked):
 
@@ -75,3 +75,7 @@ To run the demo app locally and test the component, run the following commands:
 $ npm install
 $ npm start
 ```
+
+
+Cross-browser testing provided by:<br/>
+<a href="https://www.browserstack.com/"><img width="160" src="https://myuw-web-components.github.io/img/Browserstack-logo.svg" alt="BrowserStack"/></a>
