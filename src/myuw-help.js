@@ -140,8 +140,17 @@ class MyUWHelp extends HTMLElement {
       var dialogHeight = this.$dialog.offsetHeight;
 
       // Screen dimensions
-      var cssWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-      var cssHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+      /*
+        These variables check to make sure mobile is supported and scroll bar is accounted for across browsers 
+      */
+      var cssWidth = window.innerWidth && document.documentElement.clientWidth 
+        ? Math.min(window.innerWidth, document.documentElement.clientWidth) : window.innerWidth || 
+        document.documentElement.clientWidth || 
+        document.getElementsByTagName('body')[0].clientWidth;
+      var cssHeight = window.innerHeight && document.documentElement.clientHeight 
+        ? Math.min(window.innerHeight, document.documentElement.clientHeight) : window.innerHeight || 
+        document.documentElement.clientHeight || 
+        document.getElementsByTagName('body')[0].clientHeight;
 
       // Dialog position
       var topPosition = ((cssHeight - dialogHeight) / 3);

@@ -1,5 +1,11 @@
 # myuw-help versions
 
+## 1.3.2
+
+### Fixed
+
+* Fixed positioning of dialog on mobile and some browsers (now checks for more consistent positioning)
+
 ## 1.3.1
 
 ### Fixed
