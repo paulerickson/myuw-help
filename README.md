@@ -4,35 +4,37 @@ This component provides a way to present help/feedback resources and information
 
 ## Getting started
 
-Add the following import to your page's `<head>`:
+Include the component on your page:
 
 ```html
-<script type="module" src="https://unpkg.com/@myuw-web-components/myuw-help@^1?module"></script>
-<script nomodule src="https://unpkg.com/@myuw-web-components/myuw-help@^1"></script>
+<!-- import the module -->
+<script type="module" src="https://cdn.my.wisc.edu/@myuw-web-components/myuw-help@latest/myuw-help.min.mjs"></script>
+
+<!-- fallback for browsers without ES2015 module support -->
+<script nomodule src="https://unpkg.com/@myuw-web-components/myuw-help@latest/myuw-help.min.js"></script>
+
+<myuw-help
+  myuw-help-title="Get help"
+  show-button
+  show-default-content
+  open
+>
+  <div class="your-div-here" slot="myuw-help-content">
+    Your custom content
+  </div>
+</myuw-help>
 ```
 
-Include the component's markup on your page:
+_Note:_ The evergreen "latest" version can be used for convenience, but in production settings it is recommended to use the latest [release version](https://github.com/myuw-web-components/myuw-help/releases) specifically, and upgrade only after testing!
 
-```html
-    <myuw-help
-        myuw-help-title="Get help"
-        show-button
-        show-default-content
-        open>
-        <div class="your-div-here" slot="myuw-help-content">
-            Your custom content
-        </div>
-    </myuw-help>
-```
-
-### Trigger dialog manually
+### Trigger dialog
 
 If you aren't using the top bar button (via the `show-button` attribute), fire the `show-myuw-help` event on the `document` when you want the dialog to display (e.g. when your "help" button is clicked):
 
 ```js
 function showHelpDialog() {
-    var event = new Event('show-myuw-help');
-    document.dispatchEvent(event);
+  var event = new Event('show-myuw-help');
+  document.dispatchEvent(event);
 }
 ```
 
@@ -42,15 +44,15 @@ If you want to control the exact positioning of the dialog, you can dispatch a `
 
 ```js
 function showHelpDialog() {
-    var event = new CustomEvent('show-myuw-help', {
-      detail: { // required by CustomEvent spec
-        position: { // "position" required by myuw-help component
-          top: '100px', // "top" required by myuw-help component
-          left: '100px', // "left" required by myuw-help component
-        }
+  const event = new CustomEvent('show-myuw-help', {
+    detail: { // required by CustomEvent spec
+      position: { // "position" required by myuw-help component
+        top: '100px', // "top" required by myuw-help component
+        left: '100px', // "left" required by myuw-help component
       }
-    });
-    document.dispatchEvent(event);
+    }
+  });
+  document.dispatchEvent(event);
 }
 ```
 
@@ -75,7 +77,6 @@ To run the demo app locally and test the component, run the following commands:
 $ npm install
 $ npm start
 ```
-
 
 Cross-browser testing provided by:<br/>
 <a href="https://www.browserstack.com/"><img width="160" src="https://myuw-web-components.github.io/img/Browserstack-logo.svg" alt="BrowserStack"/></a>
