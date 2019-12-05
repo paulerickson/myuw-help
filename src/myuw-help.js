@@ -3,9 +3,10 @@ class MyUWHelp extends HTMLElement {
 
   constructor() {
     super();
+    this.focusableElementsString = "a[href], input:not([disabled]), button:not([disabled]), button, select, textarea";
 
     // Create a shadowroot for this element
-    this.attachShadow({mode: 'open'});
+    this.attachShadow({ mode: 'open' });
 
     // Append the custom HTML to the shadowroot
     this.shadowRoot.appendChild(MyUWHelp.template.content.cloneNode(true));
@@ -36,17 +37,22 @@ class MyUWHelp extends HTMLElement {
   */
   connectedCallback() {
     // Get all attributes
-    this['myuw-help-title']       = this.getAttribute('myuw-help-title');
-    this['open']                  = this.getAttribute('open');
-    this['show-default-content']  = this.getAttribute('show-default-content');
-    this['show-button']       = this.getAttribute('show-button');
+    this['myuw-help-title'] = this.getAttribute('myuw-help-title');
+    this['open'] = this.getAttribute('open');
+    this['show-default-content'] = this.getAttribute('show-default-content');
+    this['show-button'] = this.getAttribute('show-button');
 
-    this.$button            = this.shadowRoot.getElementById('help-button');
-    this.$dialog            = this.shadowRoot.getElementById('myuw-help__dialog');
-    this.$dialogTitle       = this.shadowRoot.getElementById('myuw-help__title');
-    this.$backdrop          = this.shadowRoot.getElementById('myuw-help__shadow');
+    this.$button = this.shadowRoot.getElementById('help-button');
+    this.$dialog = this.shadowRoot.getElementById('myuw-help__dialog');
+    this.$dialogContentDefaultElements = this.shadowRoot.getElementById('myuw-help__default-content');
+    this.$dialogTitle = this.shadowRoot.getElementById('myuw-help__title');
+    this.$backdrop = this.shadowRoot.getElementById('myuw-help__shadow');
     this.$dialogCloseButton = this.shadowRoot.getElementById('myuw-help__close-button');
-    this.$customPosition    = {};
+    this.$customPosition = {};
+
+    // Convert NodeList into Array
+    this.focusableDefaultElements = this.$dialogContentDefaultElements.querySelectorAll(this.focusableElementsString);
+    this.focusableDefaultElements = Array.from(this.focusableDefaultElements);
 
     // Listen for open events and set positioning
     this.$button.addEventListener('click', () => {
@@ -70,12 +76,23 @@ class MyUWHelp extends HTMLElement {
     });
 
     // Listen for close events
+    this.$dialog.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        this.setDialogState(false);
+      }
+    });
     this.$backdrop.addEventListener('click', () => {
       this.setDialogState(false);
     });
     this.$dialogCloseButton.addEventListener('click', () => {
       this.setDialogState(false);
     });
+
+    // Listen for keyboard events
+    this.$dialog.addEventListener('keydown', (event) => {
+      this.dialogFocusTrap(event);
+    });
+
   }
 
   /**
@@ -90,7 +107,15 @@ class MyUWHelp extends HTMLElement {
    * @param {string} newState Optional parameter, either 'open' or 'closed'
    */
   setDialogState(newState) {
-    switch(newState) {
+    let firstTabFocus = this.$dialogCloseButton;
+
+    if (this.focusableCustomElements && this.focusableCustomElements.length > 0) {
+      firstTabFocus = this.focusableCustomElements[0];
+    } else if (this.focusableDefaultElements && this.focusableDefaultElements.length > 0) {
+      firstTabFocus = this.focusableDefaultElements[0]
+    }
+
+    switch (newState) {
       case false:
         // close the dialog
         this.removeAttribute('open');
@@ -100,7 +125,7 @@ class MyUWHelp extends HTMLElement {
         // open the dialog
         this.setAttribute('open', '');
         this.setDialogPosition();
-        this.$dialog.focus();
+        firstTabFocus.focus();
         break;
       default:
         if (this.hasAttribute('open')) {
@@ -111,9 +136,71 @@ class MyUWHelp extends HTMLElement {
           // open the dialog
           this.setAttribute('open', '');
           this.setDialogPosition();
-          this.$dialog.focus();
+          firstTabFocus.focus();
         }
         break;
+    }
+  }
+
+  /**
+   * Focus trap
+   */
+  dialogFocusTrap(e) {
+    // Get list of focusable custom elements on help dialog. Convert NodeList into Array
+    this.$dialogContentCustomElements = document.querySelectorAll('myuw-help [slot=myuw-help-content]');
+    if (this.$dialogContentCustomElements.length) {
+      this.focusableCustomElements = this.$dialogContentCustomElements[0].querySelectorAll(this.focusableElementsString);
+      this.focusableCustomElements = Array.from(this.focusableCustomElements);
+    }
+
+    let closeDialogBtn = this.$dialogCloseButton;
+
+    // Check if custom content was added to help dialog
+    if (this.focusableCustomElements && this.focusableCustomElements.length > 0) {
+      let firstCustomTabFocus = this.focusableCustomElements[0];
+      let lastCustomTabFocus = this.focusableCustomElements[this.focusableCustomElements.length - 1];
+      // Pressing Tab
+      if (e.key === "Tab") {
+        // Shift + Tab
+        if (e.shiftKey) {
+          if (this.shadowRoot.activeElement === closeDialogBtn) {
+            e.preventDefault();
+            lastCustomTabFocus.focus();
+          } else if (document.activeElement === firstCustomTabFocus) {
+            e.preventDefault();
+            closeDialogBtn.focus();
+          }
+        } else {
+          if (document.activeElement === lastCustomTabFocus) {
+            e.preventDefault();
+            closeDialogBtn.focus();
+          }
+        }
+      }
+    } else if (!this.focusableCustomElements && this.focusableDefaultElements && this.focusableDefaultElements.length > 0) {
+      let firstDefaultTabFocus = this.focusableDefaultElements[0];
+      let lastDefaultTabFocus = this.focusableDefaultElements[this.focusableDefaultElements.length - 1];
+      // Pressing Tab
+      if (e.key === "Tab") {
+        // Shift + Tab
+        if (e.shiftKey) {
+          if (this.shadowRoot.activeElement === closeDialogBtn) {
+            e.preventDefault();
+            lastDefaultTabFocus.focus();
+          } else if (this.shadowRoot.activeElement === firstDefaultTabFocus) {
+            e.preventDefault();
+            closeDialogBtn.focus();
+          }
+        } else {
+          if (this.shadowRoot.activeElement === lastDefaultTabFocus) {
+            e.preventDefault();
+            closeDialogBtn.focus();
+          }
+        }
+      }
+    } else {
+      e.preventDefault();
+      closeDialogBtn.focus();
     }
   }
 
@@ -141,15 +228,15 @@ class MyUWHelp extends HTMLElement {
 
       // Screen dimensions
       /*
-        These variables check to make sure mobile is supported and scroll bar is accounted for across browsers 
+        These variables check to make sure mobile is supported and scroll bar is accounted for across browsers
       */
-      var cssWidth = window.innerWidth && document.documentElement.clientWidth 
-        ? Math.min(window.innerWidth, document.documentElement.clientWidth) : window.innerWidth || 
-        document.documentElement.clientWidth || 
+      var cssWidth = window.innerWidth && document.documentElement.clientWidth
+        ? Math.min(window.innerWidth, document.documentElement.clientWidth) : window.innerWidth ||
+        document.documentElement.clientWidth ||
         document.getElementsByTagName('body')[0].clientWidth;
-      var cssHeight = window.innerHeight && document.documentElement.clientHeight 
-        ? Math.min(window.innerHeight, document.documentElement.clientHeight) : window.innerHeight || 
-        document.documentElement.clientHeight || 
+      var cssHeight = window.innerHeight && document.documentElement.clientHeight
+        ? Math.min(window.innerHeight, document.documentElement.clientHeight) : window.innerHeight ||
+        document.documentElement.clientHeight ||
         document.getElementsByTagName('body')[0].clientHeight;
 
       // Dialog position
@@ -178,10 +265,10 @@ MyUWHelp.template = (function template(src) {
   if (typeof window.CustomEvent === 'function') {
     return false;
   }
-  
-  function CustomEvent (event, params) {
+
+  function CustomEvent(event, params) {
     params = params || { bubbles: false, cancelable: false, detail: undefined };
-    var evt = document.createEvent( 'CustomEvent' );
+    var evt = document.createEvent('CustomEvent');
     evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
     return evt;
   }
