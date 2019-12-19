@@ -1,206 +1,203 @@
 import tpl from './myuw-help.html';
+
 class MyUWHelp extends HTMLElement {
 
-  constructor() {
-    super();
-    this.focusableElementsString = "a[href], input:not([disabled]), button:not([disabled]), button, select, textarea";
-
-    // Create a shadowroot for this element
-    this.attachShadow({ mode: 'open' });
-
-    // Append the custom HTML to the shadowroot
-    this.shadowRoot.appendChild(MyUWHelp.template.content.cloneNode(true));
+  static get elementName() {
+    return 'myuw-help';
   }
 
   static get observedAttributes() {
     return [
       'myuw-help-title',
       'open',
-      'show-default-content',
-      'show-button'
+      'show-button',
+      'show-default-content'
+    ];
+  }
+
+  static get template() {
+    if (this._template === undefined) {
+      this._template = document.createElement('template');
+      this._template.innerHTML = tpl;
+    }
+    return this._template;
+  }
+
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+    this.shadowRoot.appendChild(this.constructor.template.content.cloneNode(true));
+    this.$customPosition = {};
+    this.titleHeadingElement = this.shadowRoot.getElementById('myuw-help__title');
+    this.$button = this.shadowRoot.getElementById('help-button');
+    this.$dialog = this.shadowRoot.getElementById('myuw-help__dialog');
+    this.contentSlotElement = this.shadowRoot.querySelector('slot[name=myuw-help-content]');
+    this.$backdrop = this.shadowRoot.getElementById('myuw-help__shadow');
+    this.$dialogCloseButton = this.shadowRoot.getElementById('myuw-help__close-button');
+    this.eventListeners = [
+      { target: document, type: 'set-myuw-help-position', handler: event => this.handleDocumentSetHelpPosition(event) },
+      { target: document, type: 'show-myuw-help', handler: event => this.handleDocumentShowHelp(event) },
+      { target: this.$backdrop, type: 'click', handler: event => this.handleBackdropClick(event) },
+      { target: this.$button, type: 'click', handler: event => this.handleButtonClick(event) },
+      { target: this.$dialog, type: 'keydown', handler: event => this.handleDialogKeydown(event) },
+      { target: this.$dialogCloseButton, type: 'click', handler: event => this.handleDialogCloseButtonClick(event) }
     ];
   }
 
   /**
-  *   Web component lifecycle hook to update changed properties
-  */
+   * Array of the focusable elements within the modal, with the close button last.
+   * Always expected to have length 1 or greater, because of the close button.
+   *
+   * @returns {Array<Element>}
+   */
+  get focusableElements() {
+    const selector = "a[href], input:not([disabled]), button:not([disabled]), button, select, textarea";
+    const focusableElements = this.contentSlotElement.assignedElements({ flatten: true })
+      .reduce(
+        (agg, node) => {
+          if (node.matches(selector)) {
+            agg.push(node);
+          }
+          else {
+            node.querySelectorAll(selector).forEach(each => agg.push(each));
+          }
+          return agg;
+        },
+        []
+      )
+    ;
+    focusableElements.push(this.$dialogCloseButton);
+    return focusableElements;
+  }
+
   attributeChangedCallback(name, oldValue, newValue) {
-    // Update the attribute internally
-    this[name] = newValue;
-    // Update the component
-    this.updateComponent();
-  }
-
-  /**
-  *   When component is first attached to the DOM,
-  *   get its defined attributes and set up listeners
-  */
-  connectedCallback() {
-    // Get all attributes
-    this['myuw-help-title'] = this.getAttribute('myuw-help-title');
-    this['open'] = this.getAttribute('open');
-    this['show-default-content'] = this.getAttribute('show-default-content');
-    this['show-button'] = this.getAttribute('show-button');
-
-    this.$button = this.shadowRoot.getElementById('help-button');
-    this.$dialog = this.shadowRoot.getElementById('myuw-help__dialog');
-    this.$dialogContentDefaultElements = this.shadowRoot.getElementById('myuw-help__default-content');
-    this.$dialogTitle = this.shadowRoot.getElementById('myuw-help__title');
-    this.$backdrop = this.shadowRoot.getElementById('myuw-help__shadow');
-    this.$dialogCloseButton = this.shadowRoot.getElementById('myuw-help__close-button');
-    this.$customPosition = {};
-
-    // Convert NodeList into Array
-    this.focusableDefaultElements = this.$dialogContentDefaultElements.querySelectorAll(this.focusableElementsString);
-    this.focusableDefaultElements = Array.from(this.focusableDefaultElements);
-
-    // Listen for open events and set positioning
-    this.$button.addEventListener('click', () => {
-      this.setDialogState();
-    });
-
-    document.addEventListener('show-myuw-help', () => {
-      this.setDialogState();
-    });
-
-    // Listen for custom positioning event
-    /**
-      * @typedef {Object} position
-      * @property {String} top A value for the CSS "top" attribute
-      * @property {String} left A value for the CSS "left" attribute
-    */
-    document.addEventListener('set-myuw-help-position', (data) => {
-      if (data.detail && data.detail.position) {
-        this.$customPosition = data.detail.position;
-      }
-    });
-
-    // Listen for close events
-    this.$dialog.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape') {
-        this.setDialogState(false);
-      }
-    });
-    this.$backdrop.addEventListener('click', () => {
-      this.setDialogState(false);
-    });
-    this.$dialogCloseButton.addEventListener('click', () => {
-      this.setDialogState(false);
-    });
-
-    // Listen for keyboard events
-    this.$dialog.addEventListener('keydown', (event) => {
-      this.dialogFocusTrap(event);
-    });
-
-  }
-
-  /**
-  *   Update the component state
-  */
-  updateComponent() {
-    this.shadowRoot.getElementById('myuw-help__title').innerHTML = this['myuw-help-title'];
-  }
-
-  /**
-   * Open or close the dialog, focus it if opened
-   * @param {string} newState Optional parameter, either 'open' or 'closed'
-   */
-  setDialogState(newState) {
-    let firstTabFocus = this.$dialogCloseButton;
-
-    if (this.focusableCustomElements && this.focusableCustomElements.length > 0) {
-      firstTabFocus = this.focusableCustomElements[0];
-    } else if (this.focusableDefaultElements && this.focusableDefaultElements.length > 0) {
-      firstTabFocus = this.focusableDefaultElements[0]
-    }
-
-    switch (newState) {
-      case false:
-        // close the dialog
-        this.removeAttribute('open');
-        this.resetDialogPosition();
+    switch(name) {
+      case 'myuw-help-title':
+        this.titleHeadingElement.innerHTML = newValue;
         break;
-      case true:
-        // open the dialog
-        this.setAttribute('open', '');
-        this.setDialogPosition();
-        firstTabFocus.focus();
-        break;
-      default:
-        if (this.hasAttribute('open')) {
-          // close the dialog
-          this.removeAttribute('open');
-          this.resetDialogPosition();
-        } else {
-          // open the dialog
-          this.setAttribute('open', '');
+      case 'open':
+        // opening
+        if (oldValue === null && newValue !== null) {
           this.setDialogPosition();
-          firstTabFocus.focus();
+          this.focusableElements[0].focus();
+          return;
         }
+        // closing
+        if (oldValue !== null && newValue === null) {
+          this.resetDialogPosition();
+        }
+        // no change in open/close state; do nothing
+        break;
+      case 'show-button':
+        break;
+      case 'show-default-content':
         break;
     }
   }
 
-  /**
-   * Focus trap
-   */
-  dialogFocusTrap(e) {
-    // Get list of focusable custom elements on help dialog. Convert NodeList into Array
-    this.$dialogContentCustomElements = document.querySelectorAll('myuw-help [slot=myuw-help-content]');
-    if (this.$dialogContentCustomElements.length) {
-      this.focusableCustomElements = this.$dialogContentCustomElements[0].querySelectorAll(this.focusableElementsString);
-      this.focusableCustomElements = Array.from(this.focusableCustomElements);
+  connectedCallback(){
+    this.eventListeners.forEach( ({target, type, handler}) => target.addEventListener(type, handler));
+  }
+
+  disconnectedCallback(){
+    this.eventListeners.forEach( ({target, type, handler}) => target.removeEventListener(type, handler));
+  }
+
+  handleButtonClick(event) {
+    this.toggle();
+    event.preventDefault();
+  }
+
+  handleDocumentShowHelp(event) {
+    this.toggle();
+    event.preventDefault();
+  }
+
+  handleDocumentSetHelpPosition(event) {
+    if (event.detail && event.detail.position) {
+      this.$customPosition = event.detail.position;
     }
+    event.preventDefault();
+  }
 
-    let closeDialogBtn = this.$dialogCloseButton;
+  handleDialogKeydown(event) {
+    switch(event.key) {
+      default:
+        return;
+      case 'Escape':
+        this.close();
+        break;
+      case 'Tab':
+        if (event.shiftKey) {
+          this.focusPrevious();
+        }
+        else {
+          this.focusNext();
+        }
+        break;
+      case 'ArrowDown':
+        this.focusNext();
+        break;
+      case 'ArrowUp':
+        this.focusPrevious();
+        break;
+    }
+    event.preventDefault();
+  }
 
-    // Check if custom content was added to help dialog
-    if (this.focusableCustomElements && this.focusableCustomElements.length > 0) {
-      let firstCustomTabFocus = this.focusableCustomElements[0];
-      let lastCustomTabFocus = this.focusableCustomElements[this.focusableCustomElements.length - 1];
-      // Pressing Tab
-      if (e.key === "Tab") {
-        // Shift + Tab
-        if (e.shiftKey) {
-          if (this.shadowRoot.activeElement === closeDialogBtn) {
-            e.preventDefault();
-            lastCustomTabFocus.focus();
-          } else if (document.activeElement === firstCustomTabFocus) {
-            e.preventDefault();
-            closeDialogBtn.focus();
-          }
-        } else {
-          if (document.activeElement === lastCustomTabFocus) {
-            e.preventDefault();
-            closeDialogBtn.focus();
-          }
-        }
-      }
-    } else if (!this.focusableCustomElements && this.focusableDefaultElements && this.focusableDefaultElements.length > 0) {
-      let firstDefaultTabFocus = this.focusableDefaultElements[0];
-      let lastDefaultTabFocus = this.focusableDefaultElements[this.focusableDefaultElements.length - 1];
-      // Pressing Tab
-      if (e.key === "Tab") {
-        // Shift + Tab
-        if (e.shiftKey) {
-          if (this.shadowRoot.activeElement === closeDialogBtn) {
-            e.preventDefault();
-            lastDefaultTabFocus.focus();
-          } else if (this.shadowRoot.activeElement === firstDefaultTabFocus) {
-            e.preventDefault();
-            closeDialogBtn.focus();
-          }
-        } else {
-          if (this.shadowRoot.activeElement === lastDefaultTabFocus) {
-            e.preventDefault();
-            closeDialogBtn.focus();
-          }
-        }
-      }
+  handleBackdropClick(event) {
+    this.close();
+    event.preventDefault();
+  }
+
+  handleDialogCloseButtonClick(event) {
+    this.close();
+    event.preventDefault();
+  }
+
+  toggle() {
+    if (this.hasAttribute('open')) {
+      this.close();
     } else {
-      e.preventDefault();
-      closeDialogBtn.focus();
+      this.open();
+    }
+  }
+
+  open() {
+    this.setAttribute('open', '');
+  }
+
+  close() {
+    this.removeAttribute('open');
+  }
+
+  /**
+   * Focus the next option in the dialog, cycling around to the first
+   */
+  focusNext() {
+    const focusableElements = this.focusableElements;
+    const focusedElement = this.isSameNode(document.activeElement) ? this.shadowRoot.activeElement : document.activeElement;
+    const focusedIndex = focusableElements.indexOf(focusedElement);
+    if (focusedIndex === focusableElements.length - 1 || focusedIndex === -1) {
+      focusableElements[0].focus();
+    }
+    else {
+      focusableElements[focusedIndex + 1].focus();
+    }
+  }
+
+  /**
+   * Focus the previous option in the dialog, cycling around to the last (the close button)
+   */
+  focusPrevious() {
+    const focusableElements = this.focusableElements;
+    const focusedElement = this.isSameNode(document.activeElement) ? this.shadowRoot.activeElement : document.activeElement;
+    const focusedIndex = focusableElements.indexOf(focusedElement);
+    if (focusedIndex === 0 || focusedIndex === -1) {
+      focusableElements[focusableElements.length - 1].focus();
+    }
+    else {
+      focusableElements[focusedIndex - 1].focus();
     }
   }
 
@@ -221,59 +218,32 @@ class MyUWHelp extends HTMLElement {
       this.$dialog.style.left = this.$customPosition.left;
       this.$dialog.style.top = this.$customPosition.top;
       this.$dialog.style.right = 'auto';
-    } else {
-      // Dialog dimensions
-      var dialogWidth = this.$dialog.offsetWidth;
-      var dialogHeight = this.$dialog.offsetHeight;
-
-      // Screen dimensions
-      /*
-        These variables check to make sure mobile is supported and scroll bar is accounted for across browsers
-      */
-      var cssWidth = window.innerWidth && document.documentElement.clientWidth
-        ? Math.min(window.innerWidth, document.documentElement.clientWidth) : window.innerWidth ||
-        document.documentElement.clientWidth ||
-        document.getElementsByTagName('body')[0].clientWidth;
-      var cssHeight = window.innerHeight && document.documentElement.clientHeight
-        ? Math.min(window.innerHeight, document.documentElement.clientHeight) : window.innerHeight ||
-        document.documentElement.clientHeight ||
-        document.getElementsByTagName('body')[0].clientHeight;
-
-      // Dialog position
-      var topPosition = ((cssHeight - dialogHeight) / 3);
-      var leftPosition = ((cssWidth - dialogWidth) / 2);;
-
-      // Set positioning
-      this.$dialog.style.left = leftPosition + 'px';
-      this.$dialog.style.top = topPosition + 'px';
-      this.$dialog.style.right = 'auto';
+      return;
     }
+    // Dialog dimensions
+    const dialogWidth = this.$dialog.offsetWidth;
+    const dialogHeight = this.$dialog.offsetHeight;
+    // Screen dimensions
+    // These variables check to make sure mobile is supported and scroll bar is accounted for across browsers
+    const cssWidth = window.innerWidth && document.documentElement.clientWidth
+      ? Math.min(window.innerWidth, document.documentElement.clientWidth) : window.innerWidth ||
+      document.documentElement.clientWidth ||
+      document.getElementsByTagName('body')[0].clientWidth;
+    const cssHeight = window.innerHeight && document.documentElement.clientHeight
+      ? Math.min(window.innerHeight, document.documentElement.clientHeight) : window.innerHeight ||
+      document.documentElement.clientHeight ||
+      document.getElementsByTagName('body')[0].clientHeight;
+    // Dialog position
+    const topPosition = ((cssHeight - dialogHeight) / 3);
+    const leftPosition = ((cssWidth - dialogWidth) / 2);
+    // Set positioning
+    this.$dialog.style.left = leftPosition + 'px';
+    this.$dialog.style.top = topPosition + 'px';
+    this.$dialog.style.right = 'auto';
   }
+
 }
 
-MyUWHelp.template = (function template(src) {
-  const template = (document.createElement('template'));
-  template.innerHTML = src;
-  return template;
-})(tpl);
-
-/**
- * Polyfill for supporting the CustomEvent constructor in IE9+
- * From: https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/CustomEvent#Polyfill
- */
-(function () {
-  if (typeof window.CustomEvent === 'function') {
-    return false;
-  }
-
-  function CustomEvent(event, params) {
-    params = params || { bubbles: false, cancelable: false, detail: undefined };
-    var evt = document.createEvent('CustomEvent');
-    evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
-    return evt;
-  }
-  CustomEvent.prototype = window.Event.prototype;
-  window.CustomEvent = CustomEvent;
-})();
-
-window.customElements.define('myuw-help', MyUWHelp);
+if (customElements.get(MyUWHelp.elementName) === undefined) {
+  customElements.define(MyUWHelp.elementName, MyUWHelp);
+}
